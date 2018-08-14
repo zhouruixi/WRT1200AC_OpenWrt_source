@@ -519,3 +519,111 @@ define KernelPackage/scsi-tape
 endef
 
 $(eval $(call KernelPackage,scsi-tape))
+
+
+define KernelPackage/TCM-core
+  SUBMENU:=$(BLOCK_MENU)
+  TITLE:=Generic Target Core Mod (TCM) support
+  DEPENDS:=+kmod-scsi-core +kmod-fs-configfs
+  KCONFIG:= \
+    CONFIG_TARGET_CORE
+  FILES:= \
+	$(LINUX_DIR)/drivers/target/target_core_mod.ko
+endef
+
+$(eval $(call KernelPackage,TCM-core))
+
+
+define AddDepends/TCM
+  SUBMENU:=$(BLOCK_MENU)
+  DEPENDS+=kmod-TCM-core $(1)
+endef
+
+
+define KernelPackage/TCM-IBLOCK
+  TITLE:=TCM/IBLOCK Subsystem Plugin for Linux/BLOCK
+  KCONFIG:= \
+	CONFIG_TCM_IBLOCK
+  FILES:= \
+	$(LINUX_DIR)/drivers/target/target_core_iblock.ko
+  AUTOLOAD:=$(call AutoLoad,41,target_core_iblock,1)
+  $(call AddDepends/TCM)
+endef
+
+define KernelPackage/TCM-IBLOCK/description
+ TCM/IBLOCK subsystem plugin for non-buffered \
+ access to Linux/Block devices using BIO
+endef
+
+$(eval $(call KernelPackage,TCM-IBLOCK))
+
+
+define KernelPackage/TCM-FILEIO
+  TITLE:=TCM/FILEIO Subsystem Plugin for Linux/VFS
+  KCONFIG:= \
+	CONFIG_TCM_FILEIO
+  FILES:= \
+	$(LINUX_DIR)/drivers/target/target_core_file.ko
+  AUTOLOAD:=$(call AutoLoad,41,target_core_file,1)
+  $(call AddDepends/TCM)
+endef
+
+define KernelPackage/TCM-FILEIO/description
+ TCM/FILEIO subsystem plugin for buffered access \
+ to Linux/VFS struct file or struct block_device
+endef
+
+$(eval $(call KernelPackage,TCM-FILEIO))
+
+
+define KernelPackage/TCM-pSCSI
+  TITLE:=TCM/pSCSI Subsystem Plugin for Linux/SCSI
+  KCONFIG:= \
+	CONFIG_TCM_PSCSI
+  FILES:= \
+	$(LINUX_DIR)/drivers/target/target_core_pscsi.ko
+  AUTOLOAD:=$(call AutoLoad,41,target_core_pscsi,1)
+  $(call AddDepends/TCM)
+endef
+
+define KernelPackage/TCM-pSCSI/description
+ TCM/pSCSI subsystem plugin for non-buffered \
+ passthrough access to Linux/SCSI device
+endef
+
+$(eval $(call KernelPackage,TCM-pSCSI))
+
+
+define KernelPackage/TCM-LOOPBACK
+  TITLE:=TCM Virtual SAS target loopback module
+  KCONFIG:= \
+	CONFIG_LOOPBACK_TARGET
+  FILES:= \
+	$(LINUX_DIR)/drivers/target/loopback/tcm_loop.ko
+  AUTOLOAD:=$(call AutoLoad,41,tcm_loop,1)
+  $(call AddDepends/TCM)
+endef
+
+define KernelPackage/TCM-LOOPBACK/description
+ TCM Virtual SAS target and Linux/SCSI LLD \
+ fabric loopback module
+endef
+
+$(eval $(call KernelPackage,TCM-LOOPBACK))
+
+
+define KernelPackage/TCM-iSCSI
+  TITLE:=Linux-iSCSI.org iSCSI Target Mode Stack
+  KCONFIG:= \
+	CONFIG_ISCSI_TARGET
+  FILES:= \
+	$(LINUX_DIR)/drivers/target/iscsi/iscsi_target_mod.ko
+  AUTOLOAD:=$(call AutoLoad,41,iscsi_target_mod,1)
+  $(call AddDepends/TCM)
+endef
+
+define KernelPackage/TCM-iSCSI/description
+ enabled Linux-iSCSI.org iSCSI Target Mode Stack
+endef
+
+$(eval $(call KernelPackage,TCM-iSCSI))
